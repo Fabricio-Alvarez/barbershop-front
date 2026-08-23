@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { KeyRound } from 'lucide-react';
+import { Eye, EyeOff, KeyRound } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
@@ -18,6 +18,7 @@ export function LoginPage() {
   const location = useLocation();
   const [submitError, setSubmitError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const {
     register,
     handleSubmit,
@@ -89,11 +90,28 @@ export function LoginPage() {
             />
             {errors.email && <small className="field-error">{errors.email.message}</small>}
           </label>
-          <label className="field">
-            <span>Contraseña</span>
-            <input autoComplete="current-password" type="password" {...register('password')} />
+          <div className="field">
+            <label htmlFor="admin-password">Contraseña</label>
+            <div className="password-input">
+              <input
+                id="admin-password"
+                autoComplete="current-password"
+                type={isPasswordVisible ? 'text' : 'password'}
+                {...register('password')}
+              />
+              <button
+                type="button"
+                className="password-toggle"
+                aria-label={isPasswordVisible ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                aria-pressed={isPasswordVisible}
+                title={isPasswordVisible ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                onClick={() => setIsPasswordVisible((current) => !current)}
+              >
+                {isPasswordVisible ? <EyeOff size={19} /> : <Eye size={19} />}
+              </button>
+            </div>
             {errors.password && <small className="field-error">{errors.password.message}</small>}
-          </label>
+          </div>
           <button
             className="button button--primary button--wide"
             type="submit"

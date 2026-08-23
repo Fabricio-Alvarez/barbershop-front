@@ -697,6 +697,44 @@ p {
   outline: 0;
 }
 
+.password-input {
+  position: relative;
+}
+
+.password-input input {
+  padding-right: 46px;
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  display: grid;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  color: #616975;
+  background: transparent;
+  border: 0;
+  border-radius: 7px;
+  cursor: pointer;
+  place-items: center;
+  transform: translateY(-50%);
+  transition:
+    color 120ms ease,
+    background 120ms ease;
+}
+
+.password-toggle:hover {
+  color: var(--accent-dark);
+  background: rgba(23, 72, 181, 0.08);
+}
+
+.password-toggle:focus-visible {
+  outline: 2px solid rgba(23, 72, 181, 0.38);
+  outline-offset: 0;
+}
+
 .input-wrap {
   position: relative;
   display: block;
