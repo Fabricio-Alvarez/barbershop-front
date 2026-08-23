@@ -34,7 +34,10 @@ Incluye un panel público sin autenticación y un panel administrativo protegido
 
 ### Panel administrativo
 
-- Login mediante JWT.
+- Login mediante access token JWT de corta duración.
+- Renovación automática mediante una cookie HttpOnly rotatoria.
+- El access token permanece solo en memoria; no se almacena en `localStorage` ni
+  `sessionStorage`.
 - Ruta privada protegida.
 - Listado y paginación de citas.
 - Búsqueda por cliente, teléfono o correo.
@@ -42,7 +45,21 @@ Incluye un panel público sin autenticación y un panel administrativo protegido
 - Edición de cliente y horario.
 - Cancelación de citas.
 - Marcado de citas como completadas.
-- Cierre automático de sesión al recibir un `401`.
+- Restauración segura de la sesión al recargar la página.
+- Cierre y revocación de la sesión mediante el backend.
+
+## Sesión y cookies
+
+Todas las solicitudes se realizan con `credentials: include`. El backend debe permitir
+credenciales CORS únicamente desde el dominio exacto del frontend. La cookie de refresh
+no puede ser leída por React porque utiliza `HttpOnly`; React mantiene el access token
+solo en memoria y deduplica renovaciones simultáneas. Cuando el navegador soporta Web
+Locks, también serializa la rotación entre pestañas para evitar falsos positivos de
+reutilización.
+
+En producción con Vercel y Render se recomienda configurar dominios propios bajo el
+mismo dominio raíz para evitar restricciones de cookies de terceros. El backend también
+marca la cookie como `Partitioned` para navegadores compatibles.
 
 ## Arquitectura
 

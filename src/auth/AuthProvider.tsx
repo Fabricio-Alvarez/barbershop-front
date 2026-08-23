@@ -1,38 +1,54 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 
 import { authApi, type LoginPayload } from '../api/auth.api';
+import { setAccessToken } from '../api/client';
 import type { Admin } from '../types/api';
 import { AuthContext } from './auth-context';
 
-function storedAdmin(): Admin | null {
-  const value = sessionStorage.getItem('barbershop_admin');
-  if (!value) return null;
-  try {
-    return JSON.parse(value) as Admin;
-  } catch {
-    sessionStorage.removeItem('barbershop_admin');
-    return null;
-  }
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [admin, setAdmin] = useState<Admin | null>(() => storedAdmin());
+  const [admin, setAdmin] = useState<Admin | null>(null);
+  const [isInitializing, setIsInitializing] = useState(true);
 
-  const logout = useCallback(() => {
-    sessionStorage.removeItem('barbershop_token');
-    sessionStorage.removeItem('barbershop_admin');
-    setAdmin(null);
+  const logout = useCallback(async () => {
+    try {
+      await authApi.logout();
+    } finally {
+      setAccessToken(null);
+      setAdmin(null);
+    }
   }, []);
 
   const login = useCallback(async (payload: LoginPayload) => {
     const result = await authApi.login(payload);
-    sessionStorage.setItem('barbershop_token', result.token);
-    sessionStorage.setItem('barbershop_admin', JSON.stringify(result.admin));
     setAdmin(result.admin);
   }, []);
 
   useEffect(() => {
-    const handleExpired = () => setAdmin(null);
+    let active = true;
+
+    void authApi
+      .refresh()
+      .then((session) => {
+        if (active) setAdmin(session.admin);
+      })
+      .catch(() => {
+        setAccessToken(null);
+        if (active) setAdmin(null);
+      })
+      .finally(() => {
+        if (active) setIsInitializing(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleExpired = () => {
+      setAccessToken(null);
+      setAdmin(null);
+    };
     window.addEventListener('barbershop:session-expired', handleExpired);
     return () => window.removeEventListener('barbershop:session-expired', handleExpired);
   }, []);
@@ -40,11 +56,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value = useMemo(
     () => ({
       admin,
-      isAuthenticated: Boolean(admin && sessionStorage.getItem('barbershop_token')),
+      isAuthenticated: Boolean(admin),
+      isInitializing,
       login,
       logout,
     }),
-    [admin, login, logout],
+    [admin, isInitializing, login, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -13,7 +13,7 @@ import { clientEnv } from '../config/env';
 import { loginFormSchema, type LoginFormValues } from '../validations/forms';
 
 export function LoginPage() {
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, isInitializing } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [submitError, setSubmitError] = useState('');
@@ -26,6 +26,14 @@ export function LoginPage() {
     resolver: zodResolver(loginFormSchema),
     defaultValues: { email: '', password: '' },
   });
+
+  if (isInitializing) {
+    return (
+      <main className="session-loading">
+        <Spinner label="Verificando sesión" />
+      </main>
+    );
+  }
 
   if (isAuthenticated) return <Navigate to="/admin" replace />;
 

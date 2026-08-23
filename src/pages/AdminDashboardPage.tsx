@@ -99,7 +99,7 @@ export function AdminDashboardPage() {
             <CalendarDays size={19} /> Citas
           </span>
         </nav>
-        <button type="button" className="admin-nav-item admin-logout" onClick={logout}>
+        <button type="button" className="admin-nav-item admin-logout" onClick={() => void logout()}>
           <LogOut size={19} /> Cerrar sesión
         </button>
       </aside>

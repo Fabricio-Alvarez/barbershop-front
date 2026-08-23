@@ -6,8 +6,9 @@ import type { Admin } from '../types/api';
 export interface AuthContextValue {
   admin: Admin | null;
   isAuthenticated: boolean;
+  isInitializing: boolean;
   login: (payload: LoginPayload) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
