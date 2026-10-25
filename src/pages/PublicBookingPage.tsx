@@ -46,7 +46,6 @@ export function PublicBookingPage() {
             <div className="hero__barber">
               <Scissors size={16} aria-hidden="true" />
               <span>Barbero profesional</span>
-              <strong>Felipe Oporta Martínez</strong>
             </div>
             <div className="hero__facts">
               <span>
